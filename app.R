@@ -6,20 +6,22 @@ library(dplyr)
 max_files <- 5
 
 ui <- fluidPage(
+  
   tags$head(
     tags$style(HTML("
-.selectize-input {
-  padding-right: 20%; /* Adds padding to prevent text from going behind the arrow */
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis; /* Add ellipsis to overflow */
-}
+      .selectize-input, .selectize-dropdown-content {
+        max-width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
 
-.selectize-dropdown-content {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
+      .selectize-input > div.item {
+        max-width: calc(100% - 20px); /* Reserve space for dropdown arrow */
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
     "))
   ),
   
