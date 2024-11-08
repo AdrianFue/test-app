@@ -6,7 +6,6 @@ library(dplyr)
 max_files <- 5
 
 ui <- fluidPage(
-  
   tags$head(
     tags$style(HTML("
       .selectize-input, .selectize-dropdown-content {
@@ -33,11 +32,8 @@ ui <- fluidPage(
       selectInput("version_select", "Select Version to Load:", choices = NULL),
       actionButton("load", "Load Selected Version"),
       
-      # Dropdown for selecting a version to delete and delete button
       selectInput("delete_version_select", "Select Version to Delete:", choices = NULL),
-      actionButton("delete", "Delete Selected Version"),
-      
-      verbatimTextOutput("status")
+      actionButton("delete", "Delete Selected Version")
     ),
     mainPanel(
       sliderInput("slider1", "Slider 1:", min = 0, max = 100, value = 50),
@@ -51,47 +47,39 @@ server <- function(input, output, session) {
   user_id <- session$user
   user_dir <- paste0(file_dir, user_id, "/")
   
-  # Create the user's directory if it doesn't exist
   if (!dir.exists(user_dir)) {
     dir.create(user_dir, recursive = TRUE)
   }
   
-  # Function to refresh dropdown choices with current files in the user's directory
   refresh_file_choices <- function() {
     versions <- basename(list.files(user_dir, full.names = TRUE))
     updateSelectInput(session, "version_select", choices = versions)
     updateSelectInput(session, "delete_version_select", choices = versions)
   }
   
-  # Initialize dropdown choices when app loads
   refresh_file_choices()
   
   observeEvent(input$save, {
     files <- list.files(user_dir, full.names = TRUE)
     
-    # Check number of files
     if (length(files) >= max_files) {
-      output$status <- renderText("Error: Maximum number of files reached.")
+      showNotification("Error: Maximum number of files reached.", type = "error", duration = 5)
       return()
     }
     
-    # Validate project name input
     if (input$project_name == "") {
-      output$status <- renderText("Error: Please enter a project name before saving.")
+      showNotification("Error: Please enter a project name before saving.", type = "error", duration = 5)
       return()
     }
     
-    # Create new filename with project name and timestamp
     timestamp <- format(Sys.time(), "%Y%m%d_%H-%M-%S")
-    safe_project_name <- gsub("[^A-Za-z0-9_]+", "_", input$project_name)  # Remove special characters
+    safe_project_name <- gsub("[^A-Za-z0-9_]+", "_", input$project_name)
     file_path <- paste0(user_dir, timestamp, "_", safe_project_name, ".csv")
     
-    # Save settings to CSV
     state <- data.frame(slider1 = input$slider1, slider2 = input$slider2)
     write_csv(state, file_path)
-    output$status <- renderText("Settings saved successfully.")
+    showNotification("Settings saved successfully.", type = "message", duration = 5)
     
-    # Refresh dropdown choices after saving
     refresh_file_choices()
   })
   
@@ -101,11 +89,14 @@ server <- function(input, output, session) {
       saved_state <- read_csv(selected_file)
       updateSliderInput(session, "slider1", value = saved_state$slider1)
       updateSliderInput(session, "slider2", value = saved_state$slider2)
+      showNotification("Settings loaded successfully.", type = "message", duration = 5)
+    } else {
+      showNotification("Error: File could not be loaded.", type = "error", duration = 5)
     }
   })
   
   observeEvent(input$delete, {
-    req(input$delete_version_select) # Ensure a file is selected
+    req(input$delete_version_select)
     
     showModal(modalDialog(
       title = "Confirm Deletion",
@@ -118,21 +109,17 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$confirm_delete, {
-    removeModal() # Hide confirmation dialog
+    removeModal()
     
-    # Delete the selected file securely
     file_to_delete <- file.path(user_dir, input$delete_version_select)
     if (file.exists(file_to_delete)) {
       file.remove(file_to_delete)
-      output$status <- renderText("File deleted successfully.")
-      
-      # Refresh dropdown choices after deletion
+      showNotification("File deleted successfully.", type = "message", duration = 5)
       refresh_file_choices()
     } else {
-      output$status <- renderText("Error: File could not be deleted.")
+      showNotification("Error: File could not be deleted.", type = "error", duration = 5)
     }
   })
-  
 }
 
 shinyApp(ui = ui, server = server)
