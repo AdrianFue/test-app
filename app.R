@@ -22,7 +22,7 @@ server <- function(input, output, session) {
   
   # Function to get user files
   user_files <- reactive({
-    list.files(file_dir, pattern = paste0("^", user_id, "_"), full.names = TRUE)
+    list.files(user_dir, full.names = TRUE)
   })
   
   observe({
