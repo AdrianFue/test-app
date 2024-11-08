@@ -9,7 +9,7 @@ ui <- fluidPage(
   tags$head(
     tags$style(HTML("
 .selectize-input {
-  padding-right: 20px; /* Adds padding to prevent text from going behind the arrow */
+  padding-right: 20%; /* Adds padding to prevent text from going behind the arrow */
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis; /* Add ellipsis to overflow */
