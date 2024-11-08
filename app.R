@@ -9,7 +9,7 @@ ui <- fluidPage(
   tags$head(
     tags$style(HTML("
       .selectize-input, .selectize-dropdown-content {
-        max-width: 100%; /* Restrict to full-width */
+        # max-width: 60%; /* Restrict to full-width */
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis; /* Add ellipsis to overflow */
