@@ -16,8 +16,9 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
-  user_id <- Sys.getenv("USER")
   file_dir <- "/srv/shiny-app-data/user-states/test-app/"
+  user_id <- Sys.getenv("USER")
+  user_dir <- paste0(file_dir,user_id,"/")
   
   # Function to get user files
   user_files <- reactive({
@@ -50,7 +51,7 @@ server <- function(input, output, session) {
     # Create new filename with project name and timestamp
     timestamp <- format(Sys.time(), "%Y%m%d_%H-%M-%S")
     safe_project_name <- gsub("[^A-Za-z0-9_]", "_", input$project_name)  # Remove special characters
-    file_path <- paste0(file_dir, user_id, "_", safe_project_name, "_", timestamp, ".csv")
+    file_path <- paste0(user_dir, timestamp, "_", safe_project_name, ".csv")
     
     # Save settings to CSV
     state <- data.frame(slider1 = input$slider1, slider2 = input$slider2)
