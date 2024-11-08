@@ -60,7 +60,7 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$load, {
-    selected_file <- paste0(file_dir, input$version_select)
+    selected_file <- paste0(user_dir, input$version_select)
     if (file.exists(selected_file)) {
       saved_state <- read_csv(selected_file)
       updateSliderInput(session, "slider1", value = saved_state$slider1)
