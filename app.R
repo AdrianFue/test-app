@@ -6,6 +6,17 @@ library(dplyr)
 max_files <- 5
 
 ui <- fluidPage(
+  tags$head(
+    tags$style(HTML("
+      .selectize-input, .selectize-dropdown-content {
+        max-width: 100%; /* Restrict to full-width */
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis; /* Add ellipsis to overflow */
+      }
+    "))
+  ),
+  
   sidebarLayout(
     sidebarPanel(
       textInput("project_name", "Project Name:", value = ""),
@@ -37,40 +48,36 @@ server <- function(input, output, session) {
     list.files(user_dir, full.names = TRUE)
   })
   
-  observe({
-    versions <- basename(user_files())
-    updateSelectInput(session, "version_select", choices = versions)
-    updateSelectInput(session, "delete_version_select", choices = versions)
-  })
   
   observeEvent(input$save, {
-    # Create the user's directory if it doesn't exist
     if (!dir.exists(user_dir)) {
       dir.create(user_dir, recursive = TRUE)
     }
     
     files <- user_files()
-    # Check number of files
     if (length(files) >= max_files) {
       output$status <- renderText("Error: Maximum number of files reached.")
       return()
     }
-    # Validate project name input
     if (input$project_name == "") {
       output$status <- renderText("Error: Please enter a project name before saving.")
       return()
     }
     
-    # Create new filename with project name and timestamp
     timestamp <- format(Sys.time(), "%Y%m%d_%H-%M-%S")
-    safe_project_name <- gsub("[^A-Za-z0-9_]+", "_", input$project_name)  # Remove special characters
+    safe_project_name <- gsub("[^A-Za-z0-9_]+", "_", input$project_name)
     file_path <- paste0(user_dir, timestamp, "_", safe_project_name, ".csv")
     
-    # Save settings to CSV
     state <- data.frame(slider1 = input$slider1, slider2 = input$slider2)
     write_csv(state, file_path)
     output$status <- renderText("Settings saved successfully.")
+    
+    # Refresh dropdown choices after saving
+    versions <- basename(user_files())
+    updateSelectInput(session, "version_select", choices = versions)
+    updateSelectInput(session, "delete_version_select", choices = versions)
   })
+  
   
   observeEvent(input$load, {
     selected_file <- paste0(user_dir, input$version_select)
@@ -95,15 +102,14 @@ server <- function(input, output, session) {
   })
   
   observeEvent(input$confirm_delete, {
-    removeModal() # Hide confirmation dialog
+    removeModal()
     
-    # Delete the selected file securely
     file_to_delete <- file.path(user_dir, input$delete_version_select)
     if (file.exists(file_to_delete)) {
       file.remove(file_to_delete)
       output$status <- renderText("File deleted successfully.")
       
-      # Refresh the file list after deletion
+      # Refresh dropdown choices after deletion
       versions <- basename(user_files())
       updateSelectInput(session, "version_select", choices = versions)
       updateSelectInput(session, "delete_version_select", choices = versions)
@@ -111,6 +117,7 @@ server <- function(input, output, session) {
       output$status <- renderText("Error: File could not be deleted.")
     }
   })
+  
 }
 
 shinyApp(ui = ui, server = server)
