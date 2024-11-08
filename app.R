@@ -68,9 +68,9 @@ server <- function(input, output, session) {
   }
   
   # Set a default user_id if session$user is NULL for local testing
-  # user_id <- ifelse(is.null(session$user), "local_test_user", session$user)
+  user_id <- ifelse(is.null(session$user), "local_test_user", session$user)
   # user_id <- ifelse(is.null(session$user), "local_test_user2", session$user)
-  user_id <- ifelse(is.null(session$user), "Adrian", session$user)
+  # user_id <- ifelse(is.null(session$user), "Adrian", session$user)
   
   is_admin <- user_id %in% admin_users
   
