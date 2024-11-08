@@ -17,8 +17,8 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   file_dir <- "/srv/shiny-app-data/user-states/test-app/"
-  user_id <- Sys.getenv("USER")
-  user_dir <- paste0(file_dir,user_id,"/")
+  user_id <- session$user  # Use authenticated RStudio Connect username
+  user_dir <- paste0(file_dir, user_id, "/")
   
   # Function to get user files
   user_files <- reactive({
