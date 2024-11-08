@@ -8,12 +8,18 @@ max_files <- 5
 ui <- fluidPage(
   tags$head(
     tags$style(HTML("
-      .selectize-input, .selectize-dropdown-content {
-        # max-width: 60%; /* Restrict to full-width */
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis; /* Add ellipsis to overflow */
-      }
+.selectize-input {
+  padding-right: 20px; /* Adds padding to prevent text from going behind the arrow */
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; /* Add ellipsis to overflow */
+}
+
+.selectize-dropdown-content {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
     "))
   ),
   
