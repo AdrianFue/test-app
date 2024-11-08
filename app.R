@@ -60,8 +60,11 @@ server <- function(input, output, session) {
   refresh_file_choices()
   
   observeEvent(input$save, {
-    files <- list.files(user_dir, full.names = TRUE)
+    if (!dir.exists(user_dir)) {
+      dir.create(user_dir, recursive = TRUE)
+    }
     
+    files <- list.files(user_dir, full.names = TRUE)
     if (length(files) >= max_files) {
       showNotification("Error: Maximum number of files reached.", type = "error", duration = 5)
       return()
@@ -72,16 +75,26 @@ server <- function(input, output, session) {
       return()
     }
     
-    timestamp <- format(Sys.time(), "%Y%m%d_%H-%M-%S")
+    timestamp <- format(Sys.time(), "%y%m%d_%H-%M")
     safe_project_name <- gsub("[^A-Za-z0-9_]+", "_", input$project_name)
     file_path <- paste0(user_dir, timestamp, "_", safe_project_name, ".csv")
     
+    # Check if file already exists
+    if (file.exists(file_path)) {
+      showNotification("A file with the same name already exists. Please wait or use a different project name.", type = "warning", duration = 5)
+      return()
+    }
+    
+    # Save settings to CSV
     state <- data.frame(slider1 = input$slider1, slider2 = input$slider2)
     write_csv(state, file_path)
+    
     showNotification("Settings saved successfully.", type = "message", duration = 5)
     
+    # Refresh dropdown choices after saving
     refresh_file_choices()
   })
+  
   
   observeEvent(input$load, {
     selected_file <- paste0(user_dir, input$version_select)
