@@ -6,7 +6,7 @@ library(dplyr)
 max_files <- 5
 
 # Define list of admin users
-admin_users <- c("Adrian", "Prajna")  # Replace with actual admin usernames
+admin_users <- c("Adrian", "Prajna", "Christine")  # Replace with actual admin usernames
 
 ui <- fluidPage(
   tags$head(
